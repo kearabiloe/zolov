@@ -10,6 +10,12 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+_CROWDCOIN = {
+	"url": os.env.get("CROWDCOIN_API","http://0.0.0.0/api/v1/zolov/"),
+	"username": os.env.get("CROWDCOIN_USERNAME","admin"),
+	"api_key": os.env.get("CROWDCOIN_APIKEY","12345")
+}
+
 _OPERATORS = {
 	"MTN": {
 		"RECHARGE":"*136*{voucher_code}#",
@@ -163,17 +169,11 @@ class Voucher():
 		import os
 
 		a4_points = [
-			(110,190),(770,190),(1390,190),(2000,190),
-			(110,1040),(770,1040),(1390,1040),(2000,1040),
-			(110,1890),(770,1890),(1390,1890),(2000,1890),
-			(110,2740),(770,2740),(1390,2740),(2000,2740)
+			(1970,90),(1970,970),(1970,1850),(1970,2720)
 		]
 
 		a4_qrpoints = [
-			(160,300),(800,300),(1440,300),(2050,300),
-			(160,1160),(800,1160),(1440,1160),(2050,1160),
-			(160,2020),(800,2020),(1440,2020),(2050,2020),
-			(160,2850),(800,2850),(1440,2850),(2050,2850)
+			(220,540),(220,1440),(220,2320),(220,3165)
 		]
 
 		a3_points = [
@@ -196,14 +196,14 @@ class Voucher():
 
 		if pin:
 			if type(pin) == list:
-				voucher_codes = pin
+				vouchers = pin
 			else:
-				voucher_codes = [pin]			
+				vouchers = [pin]			
 		else:
-			voucher_codes = [i for i in getattr(self,'voucher_code', self.generate(qty))]
+			vouchers = [i for i in getattr(self,'voucher_code', self.generate(qty))]
 		
 		page = 1
-		items_per_page = 16
+		items_per_page = 4
 
 		a4_position = 1	
 
@@ -273,14 +273,14 @@ class Voucher():
 				print(a4_position)
 				current_pos = a4_points[a4_position-1]
 				current_line = 0
-				draw.text((current_pos[0],current_pos[1]+current_line+10),ussd_code,(0,0,0),font=font)
-				draw.text((current_pos[0],current_pos[1]+current_line+50),formated_voucher_code,(0,0,0),font=voucher_font)
-				draw.text((current_pos[0],current_pos[1]+current_line+550),"Serial Number: "+voucher_serial,(0,0,0),font=font)
+				draw.text((current_pos[0],current_pos[1]+current_line+10),ussd_code,('black'),font=font)
+				draw.text((current_pos[0],current_pos[1]+current_line+50),formated_voucher_code,('#000'),font=voucher_font)
+				draw.text((140,current_pos[1]+current_line+600),"Serial Number: "+voucher_serial,('#000'),font=font)
 				# for textline in lines:
 				# 	draw.text((current_pos[0],current_pos[1]+current_line*30),textline,(0,0,0),font=font)
 				# 	current_line += 1
-				qr_img = self.get_qrcode(voucher_code).resize((250,250))
-				img.paste(qr_img,a4_qrpoints[a4_position-1])
+				#qr_img = self.get_qrcode(voucher_code).resize((250,250))
+				#img.paste(qr_img,a4_qrpoints[a4_position-1])
 				img.save(output_file)		
 				img.close()
 				a4_position +=1
@@ -298,17 +298,15 @@ class Voucher():
 
 class Backend():
 
-	url = 'http://localhost:5000/api/v1/zolov/'
-	api_key = '70d8d3505623671cef4bcdb6a5eb1f1d2492cae2'
-	username = 'admin'	
+
 	headers = {
-		'Authorization':'ApiKey {username}:{api_key}'.format(username=username,api_key=api_key),
+		'Authorization':'ApiKey {username}:{api_key}'.format(username=_CROWDCOIN.username,api_key=_CROWDCOIN.api_key),
 		'Content-type': 'application/json'
 	}
 	vouchers = []
 
 
-	def fetch(self,url=url):
+	def fetch(self,url=_CROWDCOIN.url):
 		bundle = []
 		output = []
 		api_call = requests.get(self.url,headers=self.headers)

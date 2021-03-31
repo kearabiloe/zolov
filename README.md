@@ -1,5 +1,5 @@
 # ZOLOV Package
 
-This is a simple example package. You can use
-[Github-flavored Markdown](https://guides.github.com/features/mastering-markdown/)
-to write your content.
+- Generate Airtime or Crowdcoin Voucher Codes
+- Create printer-ready vouchers sheets
+- Execute USSD via USB MODEMS
